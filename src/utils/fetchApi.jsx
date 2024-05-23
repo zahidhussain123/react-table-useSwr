@@ -2,19 +2,38 @@ import useSWR from "swr";
 
 async function fetcher(url) {
   const response = await fetch(url);
-  return await response.json();
+  if (!response.ok) {
+    throw new Error("Failed to fetch data");
+  }
+  return response.json();
 }
 export function useFetch() {
-  const { data, error, isLoading } = useSWR(import.meta.env.VITE_URL, fetcher, {
+  const { data, error, isValidating  } = useSWR(import.meta.env.VITE_URL, fetcher, {
     refreshInterval : 1000
   });
 
   return {
     data,
     error,
-    isLoading,
+    isLoading: isValidating ,
   };
 }
+
+
+
+export const useTableData = () => {
+ const {data, error, isValidating }  = useSWR(import.meta.env.VITE_TABLE_URL, fetcher)
+
+ return {
+  data,
+  error,
+  isLoading: isValidating 
+ }
+} 
+
+
+
+//practice for looping problems to be resolved
 
 export function filterObjects(propertyValue, fruitsArr) {
   let newArr = [];

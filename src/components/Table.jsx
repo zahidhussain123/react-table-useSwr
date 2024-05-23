@@ -1,28 +1,77 @@
 /* eslint-disable react/jsx-key */
-import { useState } from "react";
-import { useFilters, useTable, useSortBy  } from "react-table";
+import { useState, useMemo } from "react";
+import { useFilters, useTable, useSortBy } from "react-table";
+import { useTableData } from "../utils/fetchApi";
 
-const Table = ({ columns, data }) => {
+const Table = () => {
+  const { data, error, isLoading } = useTableData();
   const [globalFilter, setGlobalFilter] = useState("");
+  const columns = useMemo(
+    () => [
+      {
+        Header: "TV Show",
+        columns: [
+          {
+            Header: "Name",
+            accessor: "show.name",
+          },
+          {
+            Header: "Type",
+            accessor: "show.type",
+          },
+        ],
+      },
+      {
+        Header: "Details",
+        columns: [
+          {
+            Header: "Language",
+            accessor: "show.language",
+          },
+          {
+            Header: "Genre(s)",
+            accessor: "show.genres",
+          },
+          {
+            Header: "Runtime",
+            accessor: "show.runtime",
+          },
+          {
+            Header: "Status",
+            accessor: "show.status",
+          },
+          {
+            Header: "URL",
+            accessor: "show.url",
+          },
+          {
+            Header: "Weight",
+            accessor: "show.weight",
+          },
+        ],
+      },
+    ],
+    []
+  );
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
     rows,
     prepareRow,
-    setFilter
-    // setAllFilters 
+    setFilter,
+    // setAllFilters
   } = useTable(
     {
       columns,
-      data,
+      data: data || [],
     },
     useFilters,
-    useSortBy 
+    useSortBy
   );
 
   const handleFilterChange = (e) => {
-    const value  = e.target.value || undefined;
+    const value = e.target.value || undefined;
     // setAllFilters([
     //     {
     //       id: "show.name",  USED FOR FILTERING BASED ON MANY THINGS
@@ -38,10 +87,20 @@ const Table = ({ columns, data }) => {
     //     }
     //   ]);
 
-    //FILTER BASED ON ONE 
-    setFilter("show.name", value)
-    setGlobalFilter(value)
-  }
+    //FILTER BASED ON ONE
+    setFilter("show.name", value);
+    setGlobalFilter(value);
+  };
+
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center mt-60">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 bg-gray-600"></div>
+      </div>
+    );
+  if (error) return <div>Error loading data: {error.message}</div>;
+
+
   return (
     <div className="p-4">
       <span className="flex items-center mb-4">
@@ -61,18 +120,18 @@ const Table = ({ columns, data }) => {
             {headerGroups?.map((headerGroup) => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
-                <th
-                {...column.getHeaderProps(column.getSortByToggleProps())}
-                className={
-                  column.isSorted
-                    ? column.isSortedDesc
-                      ? "sort-desc"
-                      : "sort-asc"
-                    : ""
-                }
-              >
-                {column.render("Header")}
-              </th>
+                  <th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className={
+                      column.isSorted
+                        ? column.isSortedDesc
+                          ? "sort-desc"
+                          : "sort-asc"
+                        : ""
+                    }
+                  >
+                    {column.render("Header")}
+                  </th>
                 ))}
               </tr>
             ))}
