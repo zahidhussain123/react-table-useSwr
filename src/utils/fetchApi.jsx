@@ -8,9 +8,7 @@ async function fetcher(url) {
   return response.json();
 }
 export function useFetch() {
-  const { data, error, isValidating  } = useSWR(import.meta.env.VITE_URL, fetcher, {
-    refreshInterval : 1000
-  });
+  const { data, error, isValidating  } = useSWR(import.meta.env.VITE_URL, fetcher);
 
   return {
     data,
